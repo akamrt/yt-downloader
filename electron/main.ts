@@ -43,6 +43,21 @@ function startExpressServer() {
   require('../server/server.cjs');
 }
 
+function startDownloadServer() {
+  // Start the yt-downloader local server on port 3002
+  try {
+    require('../server/download-server.js');
+    const app = require('../server/download-server.js');
+    if (app && typeof app.listen === 'function') {
+      app.listen(3002, '127.0.0.1', () => {
+        console.log('[yt-downloader] Download server running on http://127.0.0.1:3002');
+      });
+    }
+  } catch (err) {
+    console.error('[yt-downloader] Failed to start download server:', err);
+  }
+}
+
 async function waitForServer(url: string, timeoutMs = 15000): Promise<boolean> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
@@ -164,6 +179,7 @@ ipcMain.handle('setup:complete', async () => {
 
   if (!isDev) {
     startExpressServer();
+    startDownloadServer();
     const ready = await waitForServer('http://localhost:3001');
     if (!ready) console.error('[Electron] Server failed to start within timeout');
   }
@@ -180,15 +196,18 @@ ipcMain.handle('setup:openExternal', async (_event, url: string) => {
 
 app.whenReady().then(async () => {
   if (isDev) {
-    // In dev mode, Vite (port 3000) and Express (port 3001) are started
+    // In dev mode, Vite (port 3000) and Express (port 3001/3002) are started
     // externally by concurrently — just open the window
     createMainWindow();
   } else if (hasCompletedSetup()) {
     startExpressServer();
+    startDownloadServer();
     const ready = await waitForServer('http://localhost:3001');
     if (!ready) console.error('[Electron] Server failed to start within timeout');
     createMainWindow();
   } else {
+    // Even in setup mode, start the download server
+    startDownloadServer();
     createSetupWindow();
   }
 });

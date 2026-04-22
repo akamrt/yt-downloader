@@ -1,7 +1,7 @@
 {
-  "name": "vibecut-ai",
-  "description": "AI-powered video editor with Python tracking, Gemini AI, and timeline editing",
-  "author": "VibeCut AI",
+  "name": "yt-downloader",
+  "description": "Local YouTube downloader using yt-dlp — no remote servers, bot-detection resistant",
+  "author": "Nathan",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -11,7 +11,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "node server/server.cjs",
-    "electron:dev": "concurrently \"vite\" \"node server/server.cjs\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:dev": "concurrently \"vite\" \"node server/server.cjs\" \"node server/download-server.js\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:build": "vite build && electron-builder",
     "electron:pack": "vite build && electron-builder --dir",
     "electron:compile": "tsc -p electron/tsconfig.json"
